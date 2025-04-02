@@ -1,0 +1,77 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 50% 98%;
+    --foreground: 210 40% 14%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 210 40% 14%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 40% 14%;
+
+    --primary: 210 100% 56%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 15% 94%;
+    --secondary-foreground: 210 40% 14%;
+
+    --muted: 210 15% 94%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 15% 94%;
+    --accent-foreground: 210 40% 14%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 210 100% 56%;
+
+    --radius: 0.75rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased overflow-x-hidden;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-sm;
+  }
+  
+  .page-transition-enter {
+    @apply opacity-0;
+  }
+  
+  .page-transition-enter-active {
+    @apply opacity-100 transition-opacity duration-300;
+  }
+  
+  .page-transition-exit {
+    @apply opacity-100;
+  }
+  
+  .page-transition-exit-active {
+    @apply opacity-0 transition-opacity duration-300;
+  }
+  
+  .btn-transition {
+    @apply transition-all duration-300 ease-in-out;
+  }
+  
+  .input-focus-ring {
+    @apply focus:ring-2 focus:ring-primary/30 focus-visible:outline-none transition-shadow duration-200;
+  }
+}
