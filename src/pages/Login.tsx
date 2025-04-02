@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/utils/auth";
@@ -25,21 +24,39 @@ const Login = () => {
     setIsLoading(true);
     
     try {
+      console.log('Iniciando requisição de login...');
       const response = await fetch('http://localhost:3000/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify({ usuario, senha }),
       });
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'Erro ao fazer login');
+      console.log('Status da resposta:', response.status);
+      console.log('Headers da resposta:', Object.fromEntries(response.headers.entries()));
+
+      const responseText = await response.text();
+      console.log('Texto da resposta:', responseText);
+
+      let data;
+      try {
+        data = responseText ? JSON.parse(responseText) : null;
+      } catch (e) {
+        console.error('Erro ao fazer parse do JSON:', e);
+        throw new Error('Resposta inválida do servidor');
       }
 
-      const userData = await response.json();
-      await login(userData);
+      if (!response.ok) {
+        throw new Error(data?.error || 'Erro ao fazer login');
+      }
+
+      if (!data) {
+        throw new Error('Resposta vazia do servidor');
+      }
+
+      await login(data);
       toast.success("Login realizado com sucesso");
       navigate("/dashboard");
     } catch (error) {

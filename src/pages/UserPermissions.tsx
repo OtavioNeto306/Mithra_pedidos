@@ -17,7 +17,7 @@ const UserPermissions = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const { user } = useAuth();
+  const { user: currentUser } = useAuth();
 
   useEffect(() => {
     fetchUsers();
@@ -31,7 +31,7 @@ const UserPermissions = () => {
       setUsers(data.map((user: User) => ({
         USUARIO: user.USUARIO,
         NOME: user.NOME,
-        COMISSAO: user.COMISSAO || 0
+        COMISSAO: Number(user.COMISSAO) || 0
       })));
     } catch (error) {
       toast.error('Erro ao carregar usuários');
@@ -41,8 +41,15 @@ const UserPermissions = () => {
     }
   };
 
-  const handleComissaoChange = async (usuario: string, comissao: number) => {
-    if (usuario === user?.USUARIO) {
+  const handleComissaoChange = async (usuario: string, value: string) => {
+    const comissao = parseFloat(value);
+    
+    if (isNaN(comissao) || comissao < 0 || comissao > 100) {
+      toast.error('A comissão deve ser um número entre 0 e 100');
+      return;
+    }
+
+    if (usuario === currentUser?.USUARIO) {
       toast.error('Você não pode alterar suas próprias permissões');
       return;
     }
@@ -58,15 +65,18 @@ const UserPermissions = () => {
         body: JSON.stringify({ comissao }),
       });
 
-      if (!response.ok) throw new Error('Falha ao atualizar comissão');
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Falha ao atualizar comissão');
+      }
       
       setUsers(users.map(u => 
         u.USUARIO === usuario ? { ...u, COMISSAO: comissao } : u
       ));
       
       toast.success('Comissão atualizada com sucesso');
-    } catch (error) {
-      toast.error('Erro ao atualizar comissão');
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao atualizar comissão');
       console.error(error);
     } finally {
       setSaving(false);
@@ -74,7 +84,7 @@ const UserPermissions = () => {
   };
 
   // Se o usuário não tiver permissão de sistema completo, não mostra o componente
-  if (user?.GRAU !== 'S') {
+  if (currentUser?.GRAU !== 'S') {
     return (
       <Layout>
         <Card>
@@ -111,8 +121,8 @@ const UserPermissions = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Usuário</TableHead>
-                    <TableHead>Nome</TableHead>
+                    <TableHead>Login</TableHead>
+                    <TableHead>Vendedor</TableHead>
                     <TableHead>Comissão (%)</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -128,8 +138,8 @@ const UserPermissions = () => {
                           max="100"
                           step="0.01"
                           value={user.COMISSAO}
-                          onChange={(e) => handleComissaoChange(user.USUARIO, parseFloat(e.target.value))}
-                          disabled={user.USUARIO === user?.USUARIO || saving}
+                          onChange={(e) => handleComissaoChange(user.USUARIO, e.target.value)}
+                          disabled={user.USUARIO === currentUser?.USUARIO || saving}
                           className="w-24"
                         />
                       </TableCell>

@@ -5,6 +5,7 @@ import { Checkbox } from "./ui/checkbox";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
 import { useAuth } from "@/utils/auth";
+import { API_ENDPOINTS } from '@/config/api';
 
 interface User {
   USUARIO: string;
@@ -27,7 +28,7 @@ const UserManagement = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/auth/users');
+      const response = await fetch(API_ENDPOINTS.auth.users);
       if (!response.ok) throw new Error('Falha ao carregar usuários');
       const data = await response.json();
       setUsers(data.map((user: User) => ({
@@ -61,7 +62,7 @@ const UserManagement = () => {
     setUsers(updatedUsers);
 
     try {
-      const response = await fetch(`http://localhost:3000/api/auth/users/${usuario}/permissions`, {
+      const response = await fetch(API_ENDPOINTS.auth.userPermissions(usuario), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

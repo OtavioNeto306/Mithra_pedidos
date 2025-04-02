@@ -18,6 +18,7 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    extensions: ['.js', '.ts', '.jsx', '.tsx', '.json']
   },
   build: {
     outDir: 'dist',
@@ -27,10 +28,23 @@ export default defineConfig(({ mode }) => ({
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
         },
+        format: 'es',
+        entryFileNames: '[name].[hash].js',
+        chunkFileNames: '[name].[hash].js',
+        assetFileNames: '[name].[hash].[ext]'
       },
     },
+    sourcemap: true,
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true
+      }
+    }
   },
   optimizeDeps: {
-    exclude: ['mysql2', 'oracledb']
+    exclude: ['mysql2', 'oracledb'],
+    include: ['react', 'react-dom', 'react-router-dom']
   }
 }));

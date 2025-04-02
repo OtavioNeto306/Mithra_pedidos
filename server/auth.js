@@ -1,13 +1,17 @@
 import express from 'express';
 import mysql from 'mysql2';
 import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 const router = express.Router();
 
 const pool = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: '5445',
-  database: 'emporio'
+  host: process.env.MYSQL_HOST,
+  user: process.env.MYSQL_USER,
+  password: process.env.MYSQL_PASSWORD,
+  database: process.env.MYSQL_DATABASE
 }).promise();
 
 // Rota de registro
@@ -62,15 +66,18 @@ router.post('/register', async (req, res) => {
 // Rota de login
 router.post('/login', async (req, res) => {
   const { usuario, senha } = req.body;
+  console.log('Tentativa de login para usuário:', usuario);
 
   try {
     // Validações
     if (!usuario || !senha) {
+      console.log('Campos obrigatórios não preenchidos');
       return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
     }
 
     // Buscar usuário
     const [users] = await pool.query('SELECT * FROM senhas WHERE USUARIO = ?', [usuario]);
+    console.log('Resultado da busca:', users.length > 0 ? 'Usuário encontrado' : 'Usuário não encontrado');
 
     if (users.length === 0) {
       return res.status(401).json({ error: 'Usuário ou senha inválidos' });
@@ -80,6 +87,7 @@ router.post('/login', async (req, res) => {
 
     // Verificar senha
     const validPassword = await bcrypt.compare(senha, user.SENHA);
+    console.log('Senha válida:', validPassword);
 
     if (!validPassword) {
       return res.status(401).json({ error: 'Usuário ou senha inválidos' });
@@ -87,7 +95,24 @@ router.post('/login', async (req, res) => {
 
     // Retornar dados do usuário (exceto a senha)
     const { SENHA, ...userData } = user;
-    res.json(userData);
+    console.log('Dados do usuário a serem enviados:', userData);
+
+    // Garantir que todos os campos necessários existem
+    const responseData = {
+      USUARIO: userData.USUARIO,
+      NOME: userData.NOME || userData.USUARIO,
+      GRAU: userData.GRAU || 'U',
+      LOJAS: userData.LOJAS || 'N',
+      MODULO: userData.MODULO || 'N',
+      BANCOS: userData.BANCOS || 'N',
+      LIMICP: userData.LIMICP || 'N',
+      CCUSTO: userData.CCUSTO || 'N',
+      ARMAZEN: userData.ARMAZEN || 'N',
+      COMISSAO: userData.COMISSAO || 0
+    };
+
+    console.log('Dados finais a serem enviados:', responseData);
+    res.json(responseData);
   } catch (error) {
     console.error('Erro ao fazer login:', error);
     res.status(500).json({ error: 'Erro ao fazer login. Por favor, tente novamente.' });
@@ -180,8 +205,18 @@ router.put('/users/:usuario/comissao', async (req, res) => {
 
   try {
     // Validação da comissão
+    if (typeof comissao !== 'number') {
+      return res.status(400).json({ error: 'A comissão deve ser um número' });
+    }
+
     if (comissao < 0 || comissao > 100) {
       return res.status(400).json({ error: 'A comissão deve estar entre 0 e 100' });
+    }
+
+    // Verifica se o usuário existe
+    const [userExists] = await pool.query('SELECT USUARIO FROM senhas WHERE USUARIO = ?', [usuario]);
+    if (userExists.length === 0) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
     }
 
     // Atualiza a comissão do usuário

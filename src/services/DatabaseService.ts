@@ -1,4 +1,5 @@
 import { toast } from 'sonner';
+import { API_ENDPOINTS } from '@/config/api';
 
 // Types for database configuration
 export interface DatabaseConfig {
@@ -102,7 +103,7 @@ class DatabaseService {
    */
   public async fetchOrders(): Promise<OrderData[]> {
     try {
-      const response = await fetch('http://localhost:3000/api/auth/pedidos');
+      const response = await fetch(API_ENDPOINTS.auth.pedidos);
       if (!response.ok) {
         throw new Error('Erro ao buscar pedidos');
       }
