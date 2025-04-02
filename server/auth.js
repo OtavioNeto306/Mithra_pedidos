@@ -123,14 +123,7 @@ router.get('/users', async (req, res) => {
       SELECT 
         USUARIO,
         NOME,
-        EMAIL,
-        GRAU,
-        LOJAS,
-        MODULO,
-        BANCOS,
-        LIMICP,
-        CCUSTO,
-        ARMAZEN
+        COMISSAO
       FROM senhas
       ORDER BY NOME
     `);
@@ -177,6 +170,31 @@ router.put('/users/:usuario/permissions', async (req, res) => {
   } catch (error) {
     console.error('Erro ao atualizar permissões:', error);
     res.status(500).json({ error: 'Erro ao atualizar permissões' });
+  }
+});
+
+// Rota para atualizar comissão de um usuário
+router.put('/users/:usuario/comissao', async (req, res) => {
+  const { usuario } = req.params;
+  const { comissao } = req.body;
+
+  try {
+    // Validação da comissão
+    if (comissao < 0 || comissao > 100) {
+      return res.status(400).json({ error: 'A comissão deve estar entre 0 e 100' });
+    }
+
+    // Atualiza a comissão do usuário
+    await pool.query(`
+      UPDATE senhas 
+      SET COMISSAO = ?
+      WHERE USUARIO = ?
+    `, [comissao, usuario]);
+
+    res.json({ message: 'Comissão atualizada com sucesso' });
+  } catch (error) {
+    console.error('Erro ao atualizar comissão:', error);
+    res.status(500).json({ error: 'Erro ao atualizar comissão' });
   }
 });
 

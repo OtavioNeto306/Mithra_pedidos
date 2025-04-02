@@ -17,6 +17,7 @@ interface User {
   EMAIL: string;
   NVL_CAIXA: string;
   GESTOR: string;
+  COMISSAO: number;
 }
 
 interface AuthContextType {

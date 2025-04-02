@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, ChevronLeft, ChevronRight, Home, Settings, Database, LogOut, ShoppingCart, Shield } from 'lucide-react';
+import { Menu, X, ChevronLeft, ChevronRight, Home, Settings, LogOut, ShoppingCart, Shield } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { useAuth } from '@/utils/auth';
 import { Button } from '@/components/ui/button';
@@ -19,7 +19,6 @@ const Layout = ({ children }: LayoutProps) => {
     { name: 'Dashboard', path: '/dashboard', icon: Home },
     { name: 'Pedidos', path: '/dashboard?tab=pedidos', icon: ShoppingCart },
     { name: 'Settings', path: '/settings', icon: Settings },
-    { name: 'Database', path: '/settings#database', icon: Database },
   ];
 
   // Adiciona o item de permissões apenas para usuários com grau 'S'

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
-import DatabaseConnection from '@/components/DatabaseConnection';
 import UserManagement from '@/components/UserManagement';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,19 +9,13 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Sliders, Database, UserCog, Bell, Users } from 'lucide-react';
+import { Sliders, UserCog, Bell } from 'lucide-react';
 
 const Settings = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('general');
   
-  useEffect(() => {
-    if (location.hash === '#database') {
-      setActiveTab('database');
-    }
-  }, [location.hash]);
-
   const handleTabChange = (value: string) => {
     setActiveTab(value);
     navigate({ hash: value === 'general' ? '' : value });
@@ -45,14 +38,10 @@ const Settings = () => {
         </div>
         
         <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
-          <TabsList className="grid grid-cols-3 md:w-[400px]">
+          <TabsList className="grid grid-cols-2 md:w-[400px]">
             <TabsTrigger value="general" className="flex items-center">
               <UserCog className="h-4 w-4 mr-2" />
               <span>Geral</span>
-            </TabsTrigger>
-            <TabsTrigger value="database" className="flex items-center">
-              <Database className="h-4 w-4 mr-2" />
-              <span>Banco de Dados</span>
             </TabsTrigger>
             <TabsTrigger value="notifications" className="flex items-center">
               <Bell className="h-4 w-4 mr-2" />
@@ -116,10 +105,6 @@ const Settings = () => {
             </Card>
           </TabsContent>
           
-          <TabsContent value="database">
-            <DatabaseConnection />
-          </TabsContent>
-          
           <TabsContent value="notifications">
             <Card>
               <CardHeader>
@@ -148,16 +133,6 @@ const Settings = () => {
                       </p>
                     </div>
                     <Switch id="system-alerts" defaultChecked />
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="database-alerts">Alertas de Banco de Dados</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Avisos sobre problemas no banco de dados
-                      </p>
-                    </div>
-                    <Switch id="database-alerts" defaultChecked />
                   </div>
                   
                   <div className="flex items-center justify-between">
